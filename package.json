@@ -50,6 +50,8 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "canvas": "^3.2.1",
+    "jsbarcode": "^3.12.3",
     "pdfmake": "^0.2.20",
     "xml-js": "^1.6.11"
   }
