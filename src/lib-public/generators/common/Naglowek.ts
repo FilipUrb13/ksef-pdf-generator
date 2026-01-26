@@ -1,5 +1,5 @@
-import { Content, ContentText } from 'pdfmake/interfaces';
-import { formatText, generateLine } from '../../../shared/PDF-functions';
+import { Content, ContentImage, ContentText } from 'pdfmake/interfaces';
+import { formatText, generateBarcode, generateLine } from '../../../shared/PDF-functions';
 import { TRodzajFaktury } from '../../../shared/consts/const';
 import { Fa as Fa1 } from '../../types/fa1.types';
 import { Fa as Fa2 } from '../../types/fa2.types';
@@ -42,7 +42,10 @@ export function generateNaglowek(
       break;
   }
 
+  const barcodeImage: ContentImage | undefined = generateBarcode(additionalData?.barcode);
+
   return [
+    ...(barcodeImage ? [barcodeImage as Content] : []),
     {
       text: [
         { text: 'Krajowy System ', fontSize: 18 },

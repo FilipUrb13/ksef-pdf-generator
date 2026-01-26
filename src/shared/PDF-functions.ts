@@ -1,6 +1,7 @@
 import {
   Column,
   Content,
+  ContentImage,
   ContentQr,
   ContentTable,
   ContentText,
@@ -18,6 +19,8 @@ import {
   TStawkaPodatku_FA3,
 } from './consts/const';
 import {formatDateTime, formatTime, getFormaPlatnosciString} from './generators/common/functions';
+import JsBarcode from 'jsbarcode';
+import { createCanvas } from 'canvas';
 import { HeaderDefine, PdfFP, PdfOptionField } from './types/pdf-types';
 import { FP } from '../lib-public/types/fa3.types';
 import { DifferentValues, FilteredKeysOfValues, TypesOfValues } from './types/universal.types';
@@ -503,6 +506,35 @@ export function generateQRCode(qrCode?: string): ContentQr | undefined {
         eccLevel: 'M',
       }
     : undefined;
+}
+
+export function generateBarcode(barcodeValue?: string): ContentImage | undefined {
+  if (!barcodeValue || !barcodeValue.trim()) {
+    return undefined;
+  }
+
+  const trimmedValue = barcodeValue.trim();
+  const isSmallBarcode = trimmedValue.length <= 16;
+
+  // Use smaller dimensions for short barcodes (similar to legacy logic)
+  // Font size increased to 16 to match invoice number (HeaderPosition style)
+  const options = isSmallBarcode
+    ? { width: 2, height: 70, fontSize: 16, displayValue: true, margin: 5 }
+    : { width: 2, height: 100, fontSize: 16, displayValue: true, margin: 10 };
+
+  const canvas = createCanvas(1, 1);
+  JsBarcode(canvas, trimmedValue, {
+    format: 'CODE128',
+    ...options,
+  });
+
+  const dataUrl = canvas.toDataURL('image/png');
+
+  return {
+    image: dataUrl,
+    width: isSmallBarcode ? 150 : 200,
+    alignment: 'right',
+  };
 }
 
 export function verticalSpacing(height: number): ContentText {

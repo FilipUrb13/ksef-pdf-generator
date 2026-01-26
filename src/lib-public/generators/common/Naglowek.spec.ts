@@ -52,4 +52,82 @@ describe('generateNaglowek', () => {
     expect(Array.isArray(result)).toBe(true);
     expect(result.length).toBeGreaterThan(0);
   });
+
+  it('includes barcode image when additionalData.barcode is provided', () => {
+    const fa: Fa1 = {
+      RodzajFaktury: { _text: TRodzajFaktury.VAT },
+      P_2: { _text: 'FV/2025/01' },
+    } as any;
+    const additionalData = { nrKSeF: 'KSEF123', barcode: 'ABC123' };
+
+    const result = generateNaglowek(fa, additionalData);
+
+    expect(
+      result.some(
+        (c) =>
+          typeof c === 'object' &&
+          c !== null &&
+          'image' in c &&
+          typeof (c as any).image === 'string' &&
+          (c as any).image.startsWith('data:image/png')
+      )
+    ).toBe(true);
+  });
+
+  it('does not include barcode image when additionalData.barcode is undefined', () => {
+    const fa: Fa1 = {
+      RodzajFaktury: { _text: TRodzajFaktury.VAT },
+      P_2: { _text: 'FV/2025/01' },
+    } as any;
+    const additionalData = { nrKSeF: 'KSEF123' };
+
+    const result = generateNaglowek(fa, additionalData);
+
+    expect(
+      result.some(
+        (c) =>
+          typeof c === 'object' &&
+          c !== null &&
+          'image' in c
+      )
+    ).toBe(false);
+  });
+
+  it('does not include barcode image when additionalData.barcode is empty string', () => {
+    const fa: Fa1 = {
+      RodzajFaktury: { _text: TRodzajFaktury.VAT },
+      P_2: { _text: 'FV/2025/01' },
+    } as any;
+    const additionalData = { nrKSeF: 'KSEF123', barcode: '' };
+
+    const result = generateNaglowek(fa, additionalData);
+
+    expect(
+      result.some(
+        (c) =>
+          typeof c === 'object' &&
+          c !== null &&
+          'image' in c
+      )
+    ).toBe(false);
+  });
+
+  it('does not include barcode image when additionalData.barcode is whitespace', () => {
+    const fa: Fa1 = {
+      RodzajFaktury: { _text: TRodzajFaktury.VAT },
+      P_2: { _text: 'FV/2025/01' },
+    } as any;
+    const additionalData = { nrKSeF: 'KSEF123', barcode: '   ' };
+
+    const result = generateNaglowek(fa, additionalData);
+
+    expect(
+      result.some(
+        (c) =>
+          typeof c === 'object' &&
+          c !== null &&
+          'image' in c
+      )
+    ).toBe(false);
+  });
 });

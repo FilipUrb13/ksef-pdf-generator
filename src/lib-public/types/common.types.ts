@@ -26,4 +26,5 @@ export interface AdditionalDataTypes {
   nrKSeF: string;
   qrCode?: string;
   isMobile?: boolean;
+  barcode?: string;
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createLabelText,
   formatText,
+  generateBarcode,
   generateLine,
   generateQRCode,
   getKraj,
@@ -102,6 +103,49 @@ describe('generateQRCode', () => {
       background: 'white',
       eccLevel: 'M',
     });
+  });
+});
+
+describe('generateBarcode', () => {
+  it('returns undefined if no barcode value provided', () => {
+    expect(generateBarcode()).toBeUndefined();
+    expect(generateBarcode(undefined)).toBeUndefined();
+  });
+
+  it('returns undefined if barcode value is empty string', () => {
+    expect(generateBarcode('')).toBeUndefined();
+  });
+
+  it('returns undefined if barcode value is whitespace only', () => {
+    expect(generateBarcode('   ')).toBeUndefined();
+    expect(generateBarcode('\t\n')).toBeUndefined();
+  });
+
+  it('returns ContentImage object with data URL for valid barcode value', () => {
+    const barcode = generateBarcode('ABC123');
+
+    expect(barcode).toBeDefined();
+    expect(barcode).toHaveProperty('image');
+    expect(barcode!.image).toMatch(/^data:image\/png;base64,/);
+    expect(barcode).toHaveProperty('width');
+    expect(barcode).toHaveProperty('alignment', 'right');
+  });
+
+  it('uses smaller width for short barcodes (<= 16 characters)', () => {
+    const shortBarcode = generateBarcode('ABC123');
+    const longBarcode = generateBarcode('ABCDEFGHIJKLMNOPQRS');
+
+    expect(shortBarcode).toBeDefined();
+    expect(longBarcode).toBeDefined();
+    expect(shortBarcode!.width).toBe(150);
+    expect(longBarcode!.width).toBe(200);
+  });
+
+  it('trims whitespace from barcode value before generating', () => {
+    const barcode = generateBarcode('  ABC123  ');
+
+    expect(barcode).toBeDefined();
+    expect(barcode!.image).toMatch(/^data:image\/png;base64,/);
   });
 });
 
